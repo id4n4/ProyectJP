@@ -1,3 +1,60 @@
+// CARGA DE DATOS
+$("#myForm").submit(function(e) {
+  e.preventDefault();
+});
+
+function loadData(){
+  const v = {
+    b: document.forms['myForm']['b'].value,
+    l: document.forms['myForm']['l'].value,
+    sigmaP: document.forms['myForm']['sigmaP'].value,
+    cr: document.forms['myForm']['cr'].value,
+    cc: document.forms['myForm']['cc'].value,
+    ys: document.forms['myForm']['ys'].value,
+    e: document.forms['myForm']['e'].value,
+    theta: document.forms['myForm']['theta'].value,
+    nCapas: document.forms['myForm']['nCapas'].value,
+    mCapas: document.forms['myForm']['mCapas'].value,
+    yd: document.forms['myForm']['yd'].value,
+    PESolido: document.forms['myForm']['PESolido'].value,
+    vs: document.forms['myForm']['vs'].value,
+    gs: document.forms['myForm']['gs'].value,
+    kpa: document.forms['myForm']['kpa'].value,
+  }
+  sessionStorage.setItem('var',JSON.stringify(v))
+  console.log(v)
+
+  //Result Variables
+  const resultV = document.getElementById('resultV')
+  let ys = parseFloat(v.ys * 9.81)
+  let theta1 = parseFloat(v.b / v.nCapas)
+  let theta2 = parseFloat(v.b * 3 / v.mCapas)
+  resultV.innerHTML += '<p>ys(KN/cm<sup>3</sup>) = <b>'+ys.toFixed(2)+'</b> </p>'
+  resultV.innerHTML += '<p>&thetasym; 1 = <b>'+theta1.toFixed(2)+'</b></p>'
+  resultV.innerHTML += '<p>&thetasym; 2 = <b>'+theta2.toFixed(2)+'</b></p>'
+
+  //Result Relación de Vacio
+  let ws = parseFloat(v.PESolido * v.vs * v.gs)
+  let volumenT = parseFloat(ws / v.yd)
+  let volumenA = parseFloat(volumenT - v.vs)
+  let e0 = parseFloat(volumenA / v.vs)
+  const resultRelacionV = document.getElementById('resultRelacionV')
+  resultRelacionV.innerHTML += '<p>ws = <b>'+ws.toFixed(2)+'</b></p>'
+  resultRelacionV.innerHTML += '<p>Vol Total (cm)  = <b>'+volumenT.toFixed(2)+'</b></p>'
+  resultRelacionV.innerHTML += '<p>Vol Aire = <b>'+volumenA.toFixed(2)+'</b></p>'
+  resultRelacionV.innerHTML += '<p>e0 = <b>'+e0.toFixed(2)+'</b></p>'
+
+  //Result Esquina
+  let B = parseFloat(v.b / 2)
+  let L = parseFloat(v.l /2)
+  let uncuartopi = parseFloat(1/(4*Math.PI))
+  const resultEsquina = document.getElementById('resultEsquina')
+  resultEsquina.innerHTML += '<p>B = <b>'+B+'</b></p>'
+  resultEsquina.innerHTML += '<p>L = <b>'+L+'</b></p>'
+  resultEsquina.innerHTML += '<p>1/4&#960; = <b>'+uncuartopi.toFixed(4)+'</b></p>'
+}
+
+
 //---------------------------------------
 //TABLA --------------------------------------
 //---------------------------------------
