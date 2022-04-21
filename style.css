@@ -1,3 +1,8 @@
 #gridContainer{
     height: 500px;
 }
+.thead-dark th{
+    color: #fff;
+    background-color: #212529;
+    border-color: #32383e;
+}

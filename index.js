@@ -16,6 +16,8 @@ function loadData() {
   charData = []
   charD = []
   categories = []
+  let sumDeltaH = []
+  let chartDataDeltaH = []
   const v = {
     b: document.forms['myForm']['b'].value,
     l: document.forms['myForm']['l'].value,
@@ -33,6 +35,7 @@ function loadData() {
     gs: document.forms['myForm']['gs'].value,
     kpa: document.forms['myForm']['kpa'].value,
   }
+  let capasLado = parseInt(v.nCapas / 2)
   // sessionStorage.setItem('var',JSON.stringify(v))
   // console.log(v)
 
@@ -68,9 +71,10 @@ function loadData() {
   // load categories chart
   for (let i = B - (theta1 * 10); i <= B + (theta1 * 10); i += theta1) {
     charData[i] = []
+    sumDeltaH[i] = []
     categories.push(i.toString())
   }
-  console.log(categories)
+  // console.log(categories)
   //loadData
   let inicioPunto = B - (theta1 * 10)
   let finPunto = B
@@ -126,10 +130,7 @@ function loadData() {
         centro = esquina1 * 2 + esquina2 * 2
       }
       let incEsfuerzo = v.kpa * centro
-      charData[bpositivo].push(incEsfuerzo)
-      if (inicioPunto != B - (theta1 * 10)) {
-        charData[bnegativo].push(incEsfuerzo)
-      }
+      
       let esfuerzo = z * v.ys
       let esfuerzoFinal = incEsfuerzo + esfuerzo
       let variacionE
@@ -142,6 +143,12 @@ function loadData() {
       }
       let deformacion = variacionE / (1 + e0)
       let deltaH = deformacion * fin;
+      charData[bpositivo].push(incEsfuerzo)
+      sumDeltaH[bpositivo].push(deltaH)
+      if (inicioPunto != B - (theta1 * 10)) {
+        charData[bnegativo].push(incEsfuerzo)
+        sumDeltaH[bnegativo].push(deltaH)
+      }
       if (inicioPunto == (B - (theta1 * 10))) {
         data.push({
           'inicio': inicio,
@@ -185,7 +192,9 @@ function loadData() {
     }
     inicioPunto += theta1
   }
-  console.log(charData)
+  let sumaTotalDeltaH = []
+  // chart data
+  // console.log(sumDeltaH)
   let k = false
   for (let i = B - (theta1 * 10); i <= B + (theta1 * 10); i += theta1) {
     for (let d in charData[i]) {
@@ -200,8 +209,23 @@ function loadData() {
     if (!k) {
       k = true
     }
+    // load Delta table
+    sumaTotalDeltaH.push({
+      header: i,
+      body: sumDeltaH[i].reduce(suma)
+    })
+    chartDataDeltaH.push([i,sumDeltaH[i].reduce(suma)])
   }
-  console.log(charD)
+  // console.log(chartDataDeltaH)
+  let tHeader = document.getElementById('asentamientoHeader')
+  let tBody = document.getElementById('asentamientoBody')
+  tHeader.innerHTML = '<th scope="col"></th>'
+  tBody.innerHTML = '<th scope="row">Asentamientos inmediatos</th>'
+  for(let o of sumaTotalDeltaH){
+    tHeader.innerHTML += '<th scope="col">'+o.header+'</th>'
+    tBody.innerHTML += '<td>'+o.body.toFixed(2)+'</td>'
+  }
+
   //---------------------------------------
   //TABLA --------------------------------------
   //---------------------------------------
@@ -565,7 +589,7 @@ function loadData() {
   });
 
   //---------------------------------------
-  //Gráfica --------------------------------------
+  //Gráficas --------------------------------------
   //---------------------------------------
   Highcharts.chart('container', {
     chart: {
@@ -603,6 +627,47 @@ function loadData() {
     },
     series: charD
   });
+  Highcharts.chart('container2', {
+    chart: {
+        type: 'spline',
+    },
+    title: {
+        text: 'DISTRIBUCIÓN DE ASENTAMIENTOS POR CONSOLIDACIÓN',
+    },
+    xAxis: {
+        title: {
+            enabled: true,
+            text: 'Franjas del Cimiento'
+        },
+        maxPadding: 0.05,
+        showLastLabel: true
+    },
+    yAxis: {
+        title: {
+            text: 'Asentamientos Inmediatos (m)'
+        },
+        lineWidth: 2,
+        reversed: true,
+    },
+    legend: {
+        enabled: false
+    },
+    tooltip: {
+        headerFormat: '<b>{series.name}</b><br/>',
+        pointFormat: '{point.y:,.3f} m'
+    },
+    plotOptions: {
+        spline: {
+            marker: {
+                enable: false
+            }
+        }
+    },
+    series: [{
+        name: 'Asentamiento',
+        data: chartDataDeltaH
+    }]
+});
 }
 
 var selectorC = false
@@ -630,6 +695,9 @@ function selectOtros() {
     $('#puntoCentral').removeClass('active')
   }
   selectorO = !selectorO
+}
+function suma(total, num) {
+  return total + num;
 }
 
 

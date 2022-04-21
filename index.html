@@ -47,67 +47,67 @@
                     <form class="p-2" id="myForm" name="myForm" onsubmit="loadData()">
                         <h4>Variables</h4>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">B:</label>
+                            <label class="form-label">B:</label>
                             <input type="number" class="form-control w-50" name="b" value="10">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">L:</label>
+                            <label class="form-label">L:</label>
                             <input type="number" class="form-control w-50" name="l" value="20">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Sigma p:</label>
+                            <label class="form-label">Sigma p:</label>
                             <input type="number" class="form-control w-50" name="sigmaP" value="163">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Cr:</label>
+                            <label class="form-label">Cr:</label>
                             <input type="number" class="form-control w-50" name="cr" value="0.022">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Cc:</label>
+                            <label class="form-label">Cc:</label>
                             <input type="number" class="form-control w-50" name="cc" value="0.101">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Ys(g/cm<sup>3</sup>):</label>
+                            <label class="form-label">Ys(g/cm<sup>3</sup>):</label>
                             <input type="number" class="form-control w-50" name="ys" value="20.11">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">e(kPa):</label>
+                            <label class="form-label">e(kPa):</label>
                             <input type="number" class="form-control w-50" name="e" value="1300">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">&thetasym;:</label>
+                            <label class="form-label">&thetasym;:</label>
                             <input type="number" class="form-control w-50" name="theta" value="0.4">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">n capas cim:</label>
+                            <label class="form-label">n capas cim:</label>
                             <input type="number" class="form-control w-50" name="nCapas" value="20">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">m capas prof:</label>
+                            <label class="form-label">m capas prof:</label>
                             <input type="number" class="form-control w-50" name="mCapas" value="100">
                         </div>
 
                         <h4>Relación de vacio</h4>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Yd:</label>
+                            <label class="form-label">Yd:</label>
                             <input type="number" class="form-control w-50" name="yd" value="1.7">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">P.E. del solido:</label>
+                            <label class="form-label">P.E. del solido:</label>
                             <input type="number" class="form-control w-50" name="PESolido" value="1">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Vs:</label>
+                            <label class="form-label">Vs:</label>
                             <input type="number" class="form-control w-50" name="vs" value="1">
                         </div>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Gs:</label>
+                            <label class="form-label">Gs:</label>
                             <input type="number" class="form-control w-50" name="gs" value="2.69">
                         </div>
 
                         <h4>Esquinas</h4>
                         <div class="mb-3 d-flex align-items-center justify-content-between">
-                            <label  class="form-label">Esf. Aplicado kPa:</label>
+                            <label class="form-label">Esf. Aplicado kPa:</label>
                             <input type="number" class="form-control w-50" name="kpa" value="95">
                         </div>
                         <hr>
@@ -132,7 +132,7 @@
                 <div class="row mt-3">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a id="nav-centro" class="nav-link"  href="#puntoCentral" onclick="selectCentro()">Centro</a>
+                            <a id="nav-centro" class="nav-link" href="#puntoCentral" onclick="selectCentro()">Centro</a>
                         </li>
                         <li class="nav-item">
                             <a id="nav-otros" class="nav-link" href="#puntoOtros" onclick="selectOtros()">Otros</a>
@@ -140,7 +140,7 @@
                     </ul>
                     <div class="tab-content">
                         <div id="puntoCentral" class="tab-pane" role="tabpanel">
-                            <div  class="dx-viewport demo-container">
+                            <div class="dx-viewport demo-container">
                                 <div id="gridContainerCentro"></div>
                             </div>
                         </div>
@@ -148,6 +148,27 @@
                             <div class="dx-viewport demo-container">
                                 <div id="gridContainerOtros"></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-3 shadow p-3">
+                    <div class="row">
+                        <figure class="highcharts-figure">
+                            <div id="container2"></div>
+                        </figure>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                    <tr id="asentamientoHeader" >
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="asentamientoBody">
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
