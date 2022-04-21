@@ -42,8 +42,8 @@ function loadData() {
   let theta1 = parseFloat(v.b / v.nCapas)
   let theta2 = parseFloat(v.b * 3 / v.mCapas)
   resultV.innerHTML = '<p>ys(KN/cm<sup>3</sup>) = <b>' + ys.toFixed(2) + '</b> </p>'
-  resultV.innerHTML += '<p>&thetasym; 1 = <b>' + theta1.toFixed(2) + '</b></p>'
-  resultV.innerHTML += '<p>&thetasym; 2 = <b>' + theta2.toFixed(2) + '</b></p>'
+  resultV.innerHTML += '<p>Escala horizontal = <b>' + theta1.toFixed(2) + '</b></p>'
+  resultV.innerHTML += '<p>Escala profundidad = <b>' + theta2.toFixed(2) + '</b></p>'
 
   //Result Relación de Vacio
   let ws = parseFloat(v.PESolido * v.vs * v.gs)
@@ -187,13 +187,15 @@ function loadData() {
   }
   console.log(charData)
   let k = false
-  for (let i of charData) {
-    for (let d in i) {
-      if (!k) charD[d] = {
-        name: d,
-        data: []
+  for (let i = B - (theta1 * 10); i <= B + (theta1 * 10); i += theta1) {
+    for (let d in charData[i]) {
+      if (!k){
+        charD[d] = {
+          name: d,
+          data: []
+        }
       }
-      charD[d].data.push(i[d])
+      charD[d].data.push(charData[i][d])
     }
     if (!k) {
       k = true
