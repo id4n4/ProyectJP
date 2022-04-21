@@ -1,9 +1,13 @@
-// CARGA DE DATOS
+var data = []
+//---------------------------------------
+//CARGA DE DATOS --------------------------------------
+//---------------------------------------
 $("#myForm").submit(function(e) {
   e.preventDefault();
 });
 
 function loadData(){
+  data = []
   const v = {
     b: document.forms['myForm']['b'].value,
     l: document.forms['myForm']['l'].value,
@@ -21,7 +25,7 @@ function loadData(){
     gs: document.forms['myForm']['gs'].value,
     kpa: document.forms['myForm']['kpa'].value,
   }
-  sessionStorage.setItem('var',JSON.stringify(v))
+  // sessionStorage.setItem('var',JSON.stringify(v))
   console.log(v)
 
   //Result Variables
@@ -29,7 +33,7 @@ function loadData(){
   let ys = parseFloat(v.ys * 9.81)
   let theta1 = parseFloat(v.b / v.nCapas)
   let theta2 = parseFloat(v.b * 3 / v.mCapas)
-  resultV.innerHTML += '<p>ys(KN/cm<sup>3</sup>) = <b>'+ys.toFixed(2)+'</b> </p>'
+  resultV.innerHTML = '<p>ys(KN/cm<sup>3</sup>) = <b>'+ys.toFixed(2)+'</b> </p>'
   resultV.innerHTML += '<p>&thetasym; 1 = <b>'+theta1.toFixed(2)+'</b></p>'
   resultV.innerHTML += '<p>&thetasym; 2 = <b>'+theta2.toFixed(2)+'</b></p>'
 
@@ -39,7 +43,7 @@ function loadData(){
   let volumenA = parseFloat(volumenT - v.vs)
   let e0 = parseFloat(volumenA / v.vs)
   const resultRelacionV = document.getElementById('resultRelacionV')
-  resultRelacionV.innerHTML += '<p>ws = <b>'+ws.toFixed(2)+'</b></p>'
+  resultRelacionV.innerHTML = '<p>ws = <b>'+ws.toFixed(2)+'</b></p>'
   resultRelacionV.innerHTML += '<p>Vol Total (cm)  = <b>'+volumenT.toFixed(2)+'</b></p>'
   resultRelacionV.innerHTML += '<p>Vol Aire = <b>'+volumenA.toFixed(2)+'</b></p>'
   resultRelacionV.innerHTML += '<p>e0 = <b>'+e0.toFixed(2)+'</b></p>'
@@ -49,23 +53,251 @@ function loadData(){
   let L = parseFloat(v.l /2)
   let uncuartopi = parseFloat(1/(4*Math.PI))
   const resultEsquina = document.getElementById('resultEsquina')
-  resultEsquina.innerHTML += '<p>B = <b>'+B+'</b></p>'
+  resultEsquina.innerHTML = '<p>B = <b>'+B+'</b></p>'
   resultEsquina.innerHTML += '<p>L = <b>'+L+'</b></p>'
   resultEsquina.innerHTML += '<p>1/4&#960; = <b>'+uncuartopi.toFixed(4)+'</b></p>'
+
+  //loadData
+  let inicioPunto = B - (theta1 * 10)
+  let finPunto = B + (theta1 * 10)
+  while(inicioPunto <= finPunto){
+    let inicio = 0, fin = theta2, B2 = inicioPunto*inicioPunto, L2 = L*L
+    for (let i = 0; i < v.mCapas; i++) {
+      let z = (fin + inicio) / 2
+      let z2 = z*z
+      let a = z2 + B2 + L2
+      let c = B2 * L2 / z2
+      let esquina 
+      let part1 =  ( 2*inicioPunto*L*z * Math.sqrt(a) ) / ( (z2 * (B2*L2 + z2)) + B2*L2 )
+      let part2 = ( B2 + L2 + 2*z2 ) / a
+      let part3 = ( 2*inicioPunto*L*z * Math.sqrt(a) ) / ( (z2 * a) + (B2*L2))
+      if(a<c){
+        esquina = uncuartopi * (part1 * part2 + Math.PI - Math.asin(part3))
+      } else {
+        esquina = uncuartopi * (part1 * part2 + Math.asin(part3))
+      }
+      let centro = esquina * 4
+      let incEsfuerzo = v.kpa * centro
+      let esfuerzo = z * v.ys
+      let esfuerzoFinal = incEsfuerzo + esfuerzo
+      let variacionE
+      if(esfuerzoFinal < v.sigmaP){
+        variacionE = v.cr * Math.log10(esfuerzoFinal/esfuerzo)
+      } else if(esfuerzo > v.sigmaP){
+        variacionE = v.cc * Math.log10(esfuerzoFinal/esfuerzo)
+      } else {
+        variacionE = (v.cr * Math.log10(v.sigmaP/esfuerzo)) + (v.cc * Math.log10(esfuerzoFinal/v.sigmaP))
+      }
+      let deformacion = variacionE / (1+e0)
+      let deltaH = deformacion * fin;
+  
+      data.push({
+        'punto': inicioPunto == B ? 'Centro' : inicioPunto,
+        'inicio': inicio,
+        'fin': fin,
+        'z': z,
+        'A': a,
+        'C': c,
+        'esquina': esquina,
+        'centro': centro,
+        'incEsfuerzo': incEsfuerzo,
+        'esfuerzo': esfuerzo,
+        'esfuerzoFinal': esfuerzoFinal,
+        'variacionE': variacionE,
+        'deformacion': deformacion,
+        'deltaH': deltaH,
+      })
+      //aumenta inicio y fin
+      inicio = fin
+      fin += theta2
+    }
+    inicioPunto += theta1
+  }
+  console.log(data)
+  //---------------------------------------
+  //TABLA --------------------------------------
+  //---------------------------------------
+  $(() => {
+      $('#gridContainer').dxDataGrid({
+        dataSource: data,
+        columns: [{
+          caption: '',
+          dataField: 'punto',
+          fixed: true,
+          groupIndex: 0,
+        },{
+          caption: 'Capa',
+          fixed: true,
+          columns: [{
+            caption: 'Inicio',
+            dataField: 'inicio',
+            format: {
+              type: "fixedPoint",
+              precision: 1
+            },
+          },{
+            caption: 'Fin',
+            dataField: 'fin',
+            format: {
+              type: "fixedPoint",
+              precision: 1
+            },
+          }]
+        },{
+          caption: 'Profundidad',
+          columns:[{
+            caption: 'z',
+            dataField: 'z',
+            format: {
+              type: "fixedPoint",
+              precision: 2
+            },
+          }]
+        },{
+          caption: 'A',
+          columns:[{
+            headerCellTemplate(container) {
+              container.append($('<div>B<sup>2</sup> + L<sup>2</sup> + z<sup>2</sup> </div>'));
+            },
+            dataField: 'A',
+            format: {
+              type: "fixedPoint",
+              precision: 2
+            },
+          }]
+        },{
+          caption: 'C',
+          columns:[{
+            headerCellTemplate(container) {
+              container.append($('<div>B<sup>2</sup> * L<sup>2</sup> / z<sup>2</sup> </div>'));
+            },
+            dataField: 'C',
+            format: {
+              type: "fixedPoint",
+              precision: 2
+            },
+          }]
+        },{
+          caption: 'Esquina',
+          columns:[{
+            caption: 'l',
+            dataField: 'esquina',
+            format: {
+              type: "fixedPoint",
+              precision: 2
+            },
+          }]
+        },{
+          caption: 'Centro',
+          columns:[{
+            caption: 'Sum. l',
+            dataField: 'centro',
+            // format: {
+            //   type: "fixedPoint",
+            //   precision: 2
+            // },
+          }]
+        },{
+          caption: 'Incremento Esfuerzo',
+          dataField: 'incEsfuerzo',
+          format: {
+            type: "fixedPoint",
+            precision: 4
+          },
+        },{
+          caption: 'Esfuerzo In Situ, kPa',
+          dataField: 'esfuerzo',
+          format: {
+            type: "fixedPoint",
+            precision: 4
+          },
+        },{
+          caption: 'Esfuerzo Final',
+          dataField: 'esfuerzoFinal',
+          format: {
+            type: "fixedPoint",
+            precision: 4
+          },
+        },{
+          caption: 'Variación e',
+          dataField: 'variacionE',
+          format: {
+            type: "fixedPoint",
+            precision: 4
+          },
+        },{
+          caption: 'Deformación',
+          dataField: 'deformacion',
+          format: {
+            type: "fixedPoint",
+            precision: 4
+          },
+        },{
+          caption: 'Delta H',
+          dataField: 'deltaH',
+          format: {
+            type: "fixedPoint",
+            precision: 4
+          },
+        }],
+        summary: {
+          groupItems: [{
+            column: 'esquina',
+            summaryType: 'sum',
+            displayFormat: '{0}',
+            valueFormat: {
+              type: "fixedPoint",
+              precision: 3
+            },
+            showInGroupFooter: false,
+            alignByColumn: true,
+          }, {
+            column: 'centro',
+            summaryType: 'sum',
+            displayFormat: '{0}',
+            valueFormat: {
+              type: "fixedPoint",
+              precision: 3
+            },
+            showInGroupFooter: false,
+            alignByColumn: true,
+          }, {
+            column: 'deltaH',
+            summaryType: 'sum',
+            displayFormat: '{0} metros',
+            valueFormat: {
+              type: "fixedPoint",
+              precision: 3
+            },
+            showInGroupFooter: false,
+            alignByColumn: true,
+          }],
+        },
+        showBorders: true,
+        showColumnLines: true,
+        showRowLines: true,
+        columnAutoWidth: true,
+        loadPanel: {
+          enabled: true,
+        },
+        scrolling: {
+          mode: 'standard',
+        },
+        paging:{
+          enabled: false
+        },
+        columnFixing: {
+          enabled: true,
+        },
+        grouping: {
+          autoExpandAll: false,
+        },
+      });
+    });
 }
 
 
-//---------------------------------------
-//TABLA --------------------------------------
-//---------------------------------------
-$(() => {
-    $('#gridContainer').dxDataGrid({
-      dataSource: customers,
-      keyExpr: 'ID',
-      columns: ['CompanyName', 'City', 'State', 'Phone', 'Fax'],
-      showBorders: true,
-    });
-  });
+
 
 
   const customers = [{
