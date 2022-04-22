@@ -501,21 +501,24 @@ function loadData() {
                 text: 'Franjas del Cimiento'
             },
             maxPadding: 0.05,
-            showLastLabel: true
+            showLastLabel: true,
+            opposite: true,
+            crosshair: true
         },
         yAxis: {
             title: {
-                text: 'Asentamientos Inmediatos (m)'
+                text: 'Asentamientos (m)'
             },
             lineWidth: 2,
             reversed: true,
+            crosshair: true
         },
         legend: {
             enabled: false
         },
         tooltip: {
-            headerFormat: '<b>{series.name}</b><br/>',
-            pointFormat: '{point.y:,.3f} m'
+            headerFormat: '<b>Franja</b> : {point.x:,.2f}<br/>',
+            pointFormat: '<b>{series.name}</b> : {point.y:,.3f} m'
         },
         plotOptions: {
             spline: {
