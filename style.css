@@ -6,3 +6,6 @@
     background-color: #212529;
     border-color: #32383e;
 }
+.overflowX{
+    overflow-x: auto;
+}
