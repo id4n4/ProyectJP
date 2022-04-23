@@ -1,7 +1,5 @@
 var data = []
 var data2 = []
-var charD = []
-var charData = []
 var categories = []
 //---------------------------------------
 //CARGA DE DATOS --------------------------------------
@@ -13,11 +11,10 @@ $("#myForm").submit(function (e) {
 function loadData() {
     data = []
     data2 = []
-    charD = []
-    charData = []
     categories = []
     let sumDeltaH = []
     let chartDataDeltaH = []
+    let chartData = []
     const v = {
         b: document.forms['myForm']['b'].value,
         l: document.forms['myForm']['l'].value,
@@ -83,8 +80,7 @@ function loadData() {
     // load categories chart
     for (let i = B - (theta1 * capasLado); i <= B + (theta1 * capasLado); i += theta1) {
         categories.push(i.toFixed(2))
-        sumDeltaH[i.toFixed(2)] = []
-        charData[i.toFixed(2)] = []
+        // sumDeltaH[i.toFixed(2)] = []
         // console.log(i.toFixed(2))
     }
     //loadData
@@ -98,6 +94,11 @@ function loadData() {
         // }
         let bpositivo = B
         let bnegativo = B
+        chartData.push({
+            name: i,
+            data: []
+        })
+        sumDeltaH[i] = []
         while (inicioPunto <= finPunto) {
             if (inicioPunto == (B - (theta1 * capasLado))) {
                 bpositivo = B
@@ -172,11 +173,13 @@ function loadData() {
                 'deformacion': deformacion,
                 'deltaH': deltaH,
             })
-            charData[bpositivo.toFixed(2)].push(incEsfuerzo)
-            sumDeltaH[bpositivo.toFixed(2)].push(deltaH)
+            // sumDeltaH[bpositivo.toFixed(2)].push(deltaH)
+            chartData[i].data.push( [parseFloat(bpositivo.toFixed(2)) , incEsfuerzo] )
+            sumDeltaH[i].push( [parseFloat(bpositivo.toFixed(2)) , deltaH] )
             if (bpositivo != bnegativo) {
-                charData[bnegativo.toFixed(2)].push(incEsfuerzo)
-                sumDeltaH[bnegativo.toFixed(2)].push(deltaH)
+                chartData[i].data.push( [parseFloat(bnegativo.toFixed(2)) , incEsfuerzo] )
+                sumDeltaH[i].push( [parseFloat(bnegativo.toFixed(2)) , deltaH] )
+                // sumDeltaH[bnegativo.toFixed(2)].push(deltaH)
             }
 
             // aumento iteración
@@ -189,38 +192,29 @@ function loadData() {
         inicio = fin
         fin += theta2
     }
-    // console.log(charData)
-    // console.log(charD)
-    let k = false
-    for (let i = B - (theta1 * capasLado); i <= B + (theta1 * capasLado); i += theta1) {
-        // console.log(i.toFixed(2))
-        let index = i.toFixed(2)
-        for (let d in charData[index]) {
-            // console.log(d)
-            if (!k) {
-                charD[d] = {
-                    name: d,
-                    data: []
-                }
-            }
-            charD[d].data.push(charData[index][d])
-        }
-        if (!k) {
-            k = true
-        }
+    for(let d of chartData){
+        d.data.sort(compareToSortChartData)
     }
-    // console.log(charD)
+    for(let d of sumDeltaH){
+        d.sort(compareToSortChartData)
+    }
     // console.log(sumDeltaH)
+    // console.log(chartData)
 
     let tHeader = document.getElementById('asentamientoHeader')
     let tBody = document.getElementById('asentamientoBody')
     tHeader.innerHTML = '<th scope="col"></th>'
     tBody.innerHTML = '<th scope="row">Asentamientos por consolidación</th>'
-    for (let i in sumDeltaH) {
-        // console.log(i,'-',sumDeltaH[i].reduce(suma).toFixed(2))
-        chartDataDeltaH.push([i, sumDeltaH[i].reduce(suma)])
-        tHeader.innerHTML += '<th scope="col">' + i + '</th>'
-        tBody.innerHTML += '<td>' + sumDeltaH[i].reduce(suma).toFixed(4) + '</td>'
+    for(let i=0; i < sumDeltaH[0].length; i++){
+        let category = sumDeltaH[0][i][0]
+        let suma = 0
+        for(let d of sumDeltaH){
+            suma += d[i][1] 
+        }
+        chartDataDeltaH.push([category, suma])
+        tHeader.innerHTML += '<th scope="col">' + category + '</th>'
+        tBody.innerHTML += '<td>' + suma.toFixed(4) + '</td>'
+        console.log(suma.toFixed(4))
     }
 
 
@@ -461,7 +455,6 @@ function loadData() {
             text: 'Gráfico de Isobaras de incrementos de esfuerzo bajo el cimiento sometido a una carga Q'
         },
         xAxis: {
-            categories: categories,
             tickmarkPlacement: 'on',
             title: {
                 enabled: false
@@ -486,7 +479,7 @@ function loadData() {
         legend: {
             enabled: false
         },
-        series: charD
+        series: chartData
     });
     Highcharts.chart('container2', {
         chart: {
@@ -562,6 +555,16 @@ function selectOtros() {
 }
 function suma(total, num) {
     return total + num;
+}
+function compareToSortChartData( a, b )
+  {
+  if ( a[0] < b[0]){
+    return -1;
+  }
+  if ( a[0] > b[0]){
+    return 1;
+  }
+  return 0;
 }
 
 
